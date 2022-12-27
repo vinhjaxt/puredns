@@ -54,8 +54,21 @@ jobs:
         run: go mod download
 
       - name: Build
-        run: make
-
+        run: make && ls -alvh
+      # Create release
+      - name: Generate release tag
+        id: tag
+        run: |
+          echo "::set-output name=release_tag::ActionBuild_$(date +"%Y.%m.%d_%H-%M-%S")"
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          # body_path: checksum.txt
+          append_body: true
+          tag_name: ${{ steps.tag.outputs.release_tag }}
+          files: |
+            ./0dayex-checker-*
+      # Done release
   test:
     name: Run tests
     runs-on: ubuntu-latest
